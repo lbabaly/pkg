@@ -28,10 +28,13 @@ utils.pkg.sync([
 
 right = utils.spawn.sync(
   './' + path.basename(output),
-  [ '--pkg-fallback', '--v8-options' ],
-  { cwd: path.dirname(output) }
+  [ '--v8-options' ],
+  { cwd: path.dirname(output),
+    env: { PKG_EXECPATH: 'PKG_INVOKE_NODEJS' } }
 );
 
-assert(left.indexOf('--expose_gc') >= 0);
-assert(right.indexOf('--expose_gc') >= 0);
+assert(left.indexOf('--expose_gc') >= 0 ||
+       left.indexOf('--expose-gc') >= 0);
+assert(right.indexOf('--expose_gc') >= 0 ||
+       right.indexOf('--expose-gc') >= 0);
 utils.vacuum.sync(path.dirname(output));

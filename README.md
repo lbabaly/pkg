@@ -1,10 +1,10 @@
-![](https://raw.githubusercontent.com/zeit/art/39a6d9ad77606e2589ddd620b23e093d3b3c6195/pkg/repo-banner.png)
+![](http://res.cloudinary.com/zeit-inc/image/upload/v1509936789/repositories/pkg/pkg-repo-banner-new.png)
 
 [![Build Status](https://travis-ci.org/zeit/pkg.svg?branch=master)](https://travis-ci.org/zeit/pkg)
 [![Coverage Status](https://coveralls.io/repos/github/zeit/pkg/badge.svg?branch=master)](https://coveralls.io/github/zeit/pkg?branch=master)
 [![Dependency Status](https://david-dm.org/zeit/pkg/status.svg)](https://david-dm.org/zeit/pkg)
 [![devDependency Status](https://david-dm.org/zeit/pkg/dev-status.svg)](https://david-dm.org/zeit/pkg?type=dev)
-[![Slack Channel](http://zeit-slackin.now.sh/badge.svg)](https://zeit.chat/)
+[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/zeit)
 
 This command line interface enables you to package your Node.js project into an executable that can be run even on devices without Node.js installed.
 
@@ -22,7 +22,7 @@ your application. Deploy it as a single file
 
 ## Usage
 
-```
+```sh
 npm install -g pkg
 ```
 
@@ -45,12 +45,12 @@ option. A canonical target consists of 3 elements, separated by
 dashes, for example `node6-macos-x64` or `node4-linux-armv6`:
 
 * **nodeRange** node${n} or latest
-* **platform** freebsd, linux, macos, win
+* **platform** freebsd, linux, alpine, macos, win
 * **arch** x64, x86, armv6, armv7
 
 You may omit any element (and specify just `node6` for example).
 The omitted elements will be taken from current platform or
-system-wide Node.js installation (it's version and arch).
+system-wide Node.js installation (its version and arch).
 There is also an alias `host`, that means that all 3 elements
 are taken from current platform/Node.js. By default targets are
 `linux,macos,win` for current Node.js version and arch.
@@ -64,18 +64,22 @@ don't need to specify anything manually. However your code
 may have `require(variable)` calls (so called non-literal
 argument to `require`) or use non-javascript files (for
 example views, css, images etc).
-```
+```js
   require('./build/' + cmd + '.js')
   path.join(__dirname, 'views/' + viewName)
 ```
 Such cases are not handled by `pkg`. So you must specify the
 files - scripts and assets - manually in `pkg` property of
 your `package.json` file.
-```
+```json
   "pkg": {
     "scripts": "build/**/*.js",
     "assets": "views/**/*"
   }
+```
+You may also specify arrays of globs:
+```
+    "assets": [ "assets/**/*", "images/**/*" ]
 ```
 Just be sure to call `pkg package.json` or `pkg .` to make use
 of `scripts` and `assets` entries.
@@ -108,8 +112,9 @@ Node.js application can be called with runtime options
 `node --v8-options`. You can "bake" these runtime options into
 packaged application. The app will always run with the options
 turned on. Just remove `--` from option name.
-```
+```sh
 pkg app.js --options expose-gc
+pkg app.js --options max_old_space_size=4096
 ```
 
 ### Output
@@ -210,7 +215,15 @@ with `.node` files.
 `exec(args)` takes an array of command line arguments and returns
 a promise. For example:
 
-```
+```js
 await exec([ 'app.js', '--target', 'host', '--output', 'app.exe' ])
 // do something with app.exe, run, test, upload, deploy, etc
 ```
+
+## Troubleshooting
+
+### Error: ENOENT: no such file or directory, uv_chdir
+
+This error can be caused by deleting the directory the application is
+run from. Or, generally, deleting `process.cwd()` directory when the
+application is running.
